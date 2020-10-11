@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -50,49 +39,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
+var fs_1 = __importDefault(require("fs"));
 var superagent_1 = __importDefault(require("superagent"));
-var cheerio_1 = __importDefault(require("cheerio"));
+var dataAnalyzer_1 = __importDefault(require("./dataAnalyzer"));
 var Crowller = /** @class */ (function () {
-    function Crowller() {
+    function Crowller(dataAnalyzer) {
+        this.dataAnalyzer = dataAnalyzer;
         this.url = 'https://www.imdb.com/chart/top/';
-        this.movieInfo = [];
-        this.movieCollection = [];
-        this.getHtml();
+        this.filePath = path_1.default.resolve(__dirname, '../data/movie.json');
+        this.initSpider();
     }
-    Crowller.prototype.getMovieInfo = function (html) {
-        var _this = this;
-        var $ = cheerio_1.default.load(html);
-        var MovieTitle = $('.titleColumn');
-        MovieTitle.map(function (index, item) {
-            if (index < 20) {
-                var title = $(item)
-                    .find('a')
-                    .text();
-                _this.movieInfo.push({ title: title });
-            }
-        });
-        var MovieRating = $('.imdbRating');
-        MovieRating.map(function (index, item) {
-            if (index < 20) {
-                var rating_1 = parseFloat($(item)
-                    .find('strong')
-                    .text());
-                var order_1 = index;
-                _this.movieInfo = _this.movieInfo.map(function (item, index) {
-                    if (index === order_1) {
-                        return __assign({ rating: rating_1 }, item);
-                    }
-                    else {
-                        return item;
-                    }
-                });
-            }
-        });
-        var movieResult = { time: new Date(), data: this.movieInfo };
-        this.generateJsonContent(movieResult);
-    };
     Crowller.prototype.getHtml = function () {
         return __awaiter(this, void 0, void 0, function () {
             var results;
@@ -101,22 +58,31 @@ var Crowller = /** @class */ (function () {
                     case 0: return [4 /*yield*/, superagent_1.default(this.url)];
                     case 1:
                         results = _a.sent();
-                        this.getMovieInfo(results.text);
+                        return [2 /*return*/, results.text];
+                }
+            });
+        });
+    };
+    Crowller.prototype.writeFile = function (content) {
+        fs_1.default.writeFileSync(this.filePath, content);
+    };
+    Crowller.prototype.initSpider = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var results, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getHtml()];
+                    case 1:
+                        results = _a.sent();
+                        data = this.dataAnalyzer.analyseData(this.filePath, results);
+                        console.log(data);
+                        this.writeFile(data);
                         return [2 /*return*/];
                 }
             });
         });
     };
-    Crowller.prototype.generateJsonContent = function (info) {
-        var filePath = path_1.default.resolve(__dirname, '../data/movie.json');
-        var content = {};
-        if (fs_1.default.existsSync(filePath)) {
-            content = JSON.parse(fs_1.default.readFileSync(filePath, 'utf-8'));
-        }
-        var date = Number(info.time);
-        content[date] = info.data;
-        fs_1.default.writeFileSync(filePath, JSON.stringify(content));
-    };
     return Crowller;
 }());
-var Test = new Crowller();
+var dataAnalyzer = new dataAnalyzer_1.default();
+var crowller = new Crowller(dataAnalyzer);
