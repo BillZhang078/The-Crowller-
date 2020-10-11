@@ -16,6 +16,14 @@ export interface Content {
 }
 
 export default class DataAnalyzer {
+  private static instance: DataAnalyzer;
+
+  public static createInstance() {
+    if (!DataAnalyzer.instance) {
+      DataAnalyzer.instance = new DataAnalyzer();
+    }
+    return DataAnalyzer.instance;
+  }
   movieCollection: MovieInfo[] = [];
 
   private getMovieInfo(html: string) {
@@ -71,4 +79,6 @@ export default class DataAnalyzer {
 
     return data;
   }
+
+  private constructor() {}
 }

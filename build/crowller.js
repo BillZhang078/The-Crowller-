@@ -75,7 +75,6 @@ var Crowller = /** @class */ (function () {
                     case 1:
                         results = _a.sent();
                         data = this.dataAnalyzer.analyseData(this.filePath, results);
-                        console.log(data);
                         this.writeFile(data);
                         return [2 /*return*/];
                 }
@@ -84,5 +83,5 @@ var Crowller = /** @class */ (function () {
     };
     return Crowller;
 }());
-var dataAnalyzer = new dataAnalyzer_1.default();
+var dataAnalyzer = dataAnalyzer_1.default.createInstance();
 var crowller = new Crowller(dataAnalyzer);

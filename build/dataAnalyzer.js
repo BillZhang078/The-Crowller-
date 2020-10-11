@@ -20,6 +20,12 @@ var DataAnalyzer = /** @class */ (function () {
     function DataAnalyzer() {
         this.movieCollection = [];
     }
+    DataAnalyzer.createInstance = function () {
+        if (!DataAnalyzer.instance) {
+            DataAnalyzer.instance = new DataAnalyzer();
+        }
+        return DataAnalyzer.instance;
+    };
     DataAnalyzer.prototype.getMovieInfo = function (html) {
         var $ = cheerio_1.default.load(html);
         var MovieTitle = $('.titleColumn');

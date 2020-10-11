@@ -7,19 +7,19 @@ class Crowller {
   private url: string = 'https://www.imdb.com/chart/top/';
   private filePath = path.resolve(__dirname, '../data/movie.json');
 
-  async getHtml() {
+  private async getHtml() {
     const results = await superagent(this.url);
     return results.text;
   }
 
-  writeFile(content: string) {
+  private writeFile(content: string) {
     fs.writeFileSync(this.filePath, content);
   }
 
-  async initSpider() {
+  private async initSpider() {
     const results = await this.getHtml();
     const data = this.dataAnalyzer.analyseData(this.filePath, results);
-    console.log(data);
+
     this.writeFile(data);
   }
 
@@ -28,5 +28,5 @@ class Crowller {
   }
 }
 
-const dataAnalyzer = new DataAnalyzer();
+const dataAnalyzer = DataAnalyzer.createInstance();
 const crowller = new Crowller(dataAnalyzer);
